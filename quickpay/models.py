@@ -1,8 +1,6 @@
 from django.db import models
 from django.utils.hashcompat import md5_constructor
 
-from signals import payment_was_successfull
-
 class QuickpayTransaction(models.Model):
     msgtype = models.CharField(max_length=128)
     ordernumber = models.CharField(max_length=20)
@@ -19,20 +17,19 @@ class QuickpayTransaction(models.Model):
     transaction = models.CharField(max_length=32)
     cardtype = models.CharField(max_length=32, blank=True)
     cardnumber = models.CharField(max_length=32, blank=True)
+    cardhash = models.CharField(max_length=53)
     cardexpire = models.CharField(max_length=4, blank=True)
+    splitpayment = models.IntegerField()
+    fraudprobability = models.CharField(max_length=10, blank=True)
+    fraudremarks = models.CharField(max_length=512, blank=True)
+    fraudreport = models.CharField(max_length=512, blank=True)
     fee = models.CharField(max_length=10, blank=True)
     md5check = models.CharField(max_length=32)
-
-    def __init__(self, *args, **kwargs):
-        self.secret = kwargs.pop('secret', None)
-        super(QuickpayTransaction, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
         return self.ordernumber
 
-    def save(self, *args, **kwargs):
-        super(QuickpayTransaction, self).save(*args, **kwargs)
-
+    def is_valid(secret):
         md_input = ''.join((
             self.msgtype,
             self.ordernumber,
@@ -49,9 +46,14 @@ class QuickpayTransaction(models.Model):
             self.transaction,
             self.cardtype,
             self.cardnumber,
+            self.cardhash,
+            self.cardexpire,
+            self.splitpayment,
+            self.fraudprobability,
+            self.fraudremarks,
+            self.fraudreport,
             self.fee,
-            self.secret,
+            secret,
         ))
-        valid = md5_constructor(md_input).hexdigest() == self.md5check and self.qpstat == '000'
-        if valid:
-            payment_was_successfull.send(sender=self, ordernumber=self.ordernumber)
+
+        return self.qpstat == '000' and md5_constructor(md_input).hexdigest() == self.md5check
