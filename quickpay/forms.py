@@ -3,40 +3,32 @@ from django.conf import settings
 
 from models import QuickpayTransaction
 
+
 class QuickpayForm(forms.ModelForm):
-    """
-    """
-    protocol = forms.IntegerField(widget=forms.HiddenInput, required=False, initial=3)
-    msgtype = forms.CharField(widget=forms.HiddenInput, initial='authorize',)
-    language = forms.CharField(initial=settings.LANGUAGE_CODE, required=False, widget=forms.HiddenInput)
-    autocapture = forms.IntegerField(initial=0, required=False, widget=forms.HiddenInput)
-    cardtypelock = forms.CharField(
-        widget=forms.HiddenInput,
-        required=False,
-        initial = "3d-jcb,3d-mastercard,3d-mastercard-dk,3d-visa,3d-visa-dk,american-express," \
-                  "american-express-dk,dankort,diners,diners-dk,jcb,mastercard,mastercard-dk,visa,visa-dk"
-    )
-    ordernumber = forms.CharField(widget=forms.HiddenInput,)
-    amount = forms.CharField(widget=forms.HiddenInput, initial=0)
-    currency = forms.CharField(widget=forms.HiddenInput)
+    protocol = forms.IntegerField(widget=forms.HiddenInput, initial=6)
+    language = forms.CharField(widget=forms.HiddenInput, initial=settings.LANGUAGE_CODE)
+    cardtypelock = forms.CharField(widget=forms.HiddenInput, initial='creditcard')
     merchant = forms.CharField(widget=forms.HiddenInput)
-    continueurl = forms.URLField(widget=forms.HiddenInput, required=False)
-    cancelurl = forms.URLField(widget=forms.HiddenInput, required=False)
-    callbackurl = forms.URLField(required=False, widget=forms.HiddenInput)
-    md5check = forms.CharField(widget=forms.HiddenInput)
-    state = forms.IntegerField(widget=forms.HiddenInput)
-    time = forms.CharField(widget=forms.HiddenInput, required=False)
-    qpstat = forms.CharField(widget=forms.HiddenInput)
-    qpstatmsg = forms.CharField(widget=forms.HiddenInput, required=False)
-    chstat = forms.CharField(widget=forms.HiddenInput)
-    chstatmsg = forms.CharField(widget=forms.HiddenInput, required=False)
-    merchantemail = forms.EmailField(widget=forms.HiddenInput)
-    cardtype = forms.CharField(widget=forms.HiddenInput)
-    cardnumber = forms.CharField(widget=forms.HiddenInput, required=False)
-    cardexpire = forms.CharField(widget=forms.HiddenInput, required=False)
-    transaction = forms.CharField(widget=forms.HiddenInput)
-    description = forms.CharField(widget=forms.HiddenInput, required=False)
-    fee = forms.CharField(widget=forms.HiddenInput, required=False)
+    description = forms.CharField(widget=forms.HiddenInput)
+    continueurl = forms.URLField(widget=forms.HiddenInput)
+    cancelurl = forms.URLField(widget=forms.HiddenInput)
+    callbackurl = forms.URLField(widget=forms.HiddenInput)
+    autocapture = forms.IntegerField(widget=forms.HiddenInput, initial=0)
+    autofee = forms.IntegerField(widget=forms.HiddenInput, initial=0)
+    group = forms.IntegerField(widget=forms.HiddenInput)
+    testmode = forms.IntegerField(widget=forms.HiddenInput, initial=int(settings.DEBUG))
+    forcemobile = forms.IntegerField(widget=forms.HiddenInput, initial=0)
+    deadline = forms.IntegerField(widget=forms.HiddenInput)
 
     class Meta:
         model = QuickpayTransaction
+        fields = ('msgtype', 'ordernumber', 'amount', 'currency', 'splitpayment', 'cardhash', 'md5check')
+        widgets = {
+            'msgtype': forms.HiddenInput,
+            'ordernumber': forms.HiddenInput,
+            'amount': forms.HiddenInput,
+            'currency': forms.HiddenInput,
+            'splitpayment': forms.HiddenInput,
+            'cardhash': forms.HiddenInput,
+            'md5check': forms.HiddenInput,
+        }
