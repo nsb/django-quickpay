@@ -1,4 +1,3 @@
-from django.http import HttpResponse, HttpResponseBadRequest
 from models import QuickpayTransaction
 from django.views.generic.edit import BaseCreateView
 
