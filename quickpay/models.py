@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils.hashcompat import md5_constructor
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import signals
 
 class QuickpayTransaction(models.Model):
     msgtype = models.CharField(max_length=128)
@@ -29,6 +32,12 @@ class QuickpayTransaction(models.Model):
     def __unicode__(self):
         return self.ordernumber
 
+    def is_success(self):
+        return self.qpstat == '000'
+
+    def is_fail(self):
+        return not self.is_success()
+
     def is_valid(secret):
         md_input = ''.join((
             self.msgtype,
@@ -56,4 +65,13 @@ class QuickpayTransaction(models.Model):
             secret,
         ))
 
-        return self.qpstat == '000' and md5_constructor(md_input).hexdigest() == self.md5check
+        return md5_constructor(md_input).hexdigest() == self.md5check
+
+@receiver(post_save, sender=QuickpayTransaction, dispatch_uid='check_status')
+def check_status(sender, instance, created, *a, **k):
+    if not created:
+        return
+    elif instance.is_success():
+        signals.payment_successful.send(sender=instance)
+    else:
+        signals.payment_failed.send(sender=instance)
