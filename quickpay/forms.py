@@ -1,10 +1,7 @@
 from django import forms
 from django.conf import settings
 
-from models import QuickpayTransaction
-
-
-class QuickpayForm(forms.ModelForm):
+class QuickpayForm(forms.Form):
     protocol = forms.IntegerField(widget=forms.HiddenInput, initial=6)
     language = forms.CharField(widget=forms.HiddenInput, initial=settings.LANGUAGE_CODE)
     cardtypelock = forms.CharField(widget=forms.HiddenInput, initial='creditcard')
@@ -20,15 +17,10 @@ class QuickpayForm(forms.ModelForm):
     forcemobile = forms.IntegerField(widget=forms.HiddenInput, initial=0)
     deadline = forms.IntegerField(widget=forms.HiddenInput)
 
-    class Meta:
-        model = QuickpayTransaction
-        fields = ('msgtype', 'ordernumber', 'amount', 'currency', 'splitpayment', 'cardhash', 'md5check')
-        widgets = {
-            'msgtype': forms.HiddenInput,
-            'ordernumber': forms.HiddenInput,
-            'amount': forms.HiddenInput,
-            'currency': forms.HiddenInput,
-            'splitpayment': forms.HiddenInput,
-            'cardhash': forms.HiddenInput,
-            'md5check': forms.HiddenInput,
-        }
+    msgtype = forms.IntegerField(widget=forms.HiddenInput, initial='authorize')
+    ordernumber = forms.CharField(widget=forms.HiddenInput)
+    amount = forms.IntegerField(widget=forms.HiddenInput)
+    currency = forms.CharField(widget=forms.HiddenInput, initial='USD')
+    splitpayment = forms.IntegerField(widget=forms.HiddenInput, initial=0)
+    cardhash = forms.IntegerField(widget=forms.HiddenInput, initial=1)
+    md5check = forms.CharField(widget=forms.HiddenInput)
