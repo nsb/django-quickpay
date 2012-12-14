@@ -16,21 +16,21 @@ def request_md5check(data, secret):
         data['continueurl'],
         data['cancelurl'],
 
-        data.get('callbackurl') or '',
-        data.get('autocapture') or '',
-        data.get('autofee') or '',
-        data.get('cardtypelock') or '',
-        data.get('description') or '',
-        data.get('group') or '',
-        data.get('testmode') or '',
-        data.get('splitpayment') or '',
-        data.get('forcemobile') or '',
-        data.get('deadline') or '',
-        data.get('cardhash') or '',
+        data.get('callbackurl', ''),
+        data.get('autocapture', ''),
+        data.get('autofee', ''),
+        data.get('cardtypelock', ''),
+        data.get('description', ''),
+        data.get('group', ''),
+        data.get('testmode', ''),
+        data.get('splitpayment', ''),
+        data.get('forcemobile', ''),
+        data.get('deadline', ''),
+        data.get('cardhash', ''),
 
         secret
     )
 
-    md5string = ''.join([str(val) for val in md5pieces])
+    md5string = ''.join([str(val) for val in md5pieces if val is not None])
     return md5(md5string).hexdigest()
 
