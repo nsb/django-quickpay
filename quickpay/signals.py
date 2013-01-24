@@ -1,3 +1,4 @@
 from django.dispatch import Signal
 
-payment_was_successfull = Signal(providing_args=["ordernumber",])
+payment_successful = Signal()
+payment_failed = Signal()

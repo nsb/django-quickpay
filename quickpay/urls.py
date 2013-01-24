@@ -1,5 +1,6 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, include, url
+import views
 
-urlpatterns = patterns('quickpay.views',
-    (r'^$', 'callback', {}, 'quickpay_callback',),
+urlpatterns = patterns('',
+    url(r'^callback/$', views.BaseQuickpayCallback.as_view(), name='quickpay_callback'),
 )

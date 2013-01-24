@@ -1,19 +1,23 @@
-
-from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse, HttpResponseBadRequest
-
-from forms import QuickpayForm
 from models import QuickpayTransaction
+from django.views.generic.edit import BaseCreateView
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 
-class BaseQuickpayCallback(object):
+class BaseQuickpayCallback(BaseCreateView):
+	"""
+	Base view for receiving Quickpay callbacks.
+	"""
+	http_method_names = ('post',)
+	model = QuickpayTransaction
 
-    def  __call__(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            form = QuickpayForm(request.POST, instance=QuickpayTransaction(secret=self.get_secret(request)))
-            if form.is_valid():
-                transaction = form.save()
-                return HttpResponse()
-        return HttpResponseBadRequest()
+	@method_decorator(csrf_exempt)
+	def dispatch(self, *args, **kwargs):
+		return super(BaseQuickpayCallback, self).dispatch(*args, **kwargs)
 
-    def get_secret(self, request):
-        raise NotImplementedError("Your %s class has not defined a get_secret() method, which is required." % self.__class__.__name__)
+	def form_valid(self, form):
+		form.save()
+		return HttpResponse('OK')
+
+	def form_invalid(self, form):
+		return HttpResponse('FAIL', status=400)
