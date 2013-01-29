@@ -1,4 +1,4 @@
-from django.utils.hashcompat import md5_constructor as md5
+from hashlib import md5
 
 def request_md5check(data, secret):
     """
