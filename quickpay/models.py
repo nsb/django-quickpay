@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.hashcompat import md5_constructor as md5
+from hashlib import md5
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import signals
